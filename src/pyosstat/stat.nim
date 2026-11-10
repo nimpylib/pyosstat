@@ -1,5 +1,6 @@
 
-from std/os import raiseOSError, osLastError
+from std/oserrors import raiseOSError
+import pkg/jscompat/oserrors
 
 import pkg/errno
 import pkg/pyerrors/oserr
@@ -552,7 +553,8 @@ elif InJs:
       body
       0
     except oserror_decl.PyOSError as e:
-      e.errno
+      setErrnoRaw cint e.errno
+      -1
   def3STAT(
     ret0 statAux(s, p),
     ret0 lstatAux(s, p),
@@ -581,7 +583,7 @@ else:
     var st{.noinit.}: Stat
     let res = when path is int: FSTAT(path, st) else: STATf($path, st)
     if res != 0:
-      raiseExcWithPath path
+      raiseExcWithPath $path
     st.attr
 
 proc Py_fstat_noraise*(fd: int, status: var Stat): cint =
@@ -641,7 +643,7 @@ proc Py_fstat*(fd: int, status: var Stat) =
   ## 
   ## fileutils.c `_Py_fstat`
   if Py_fstat_noraise(fd, status) != 0:
-    raiseOSError osLastError()
+    raiseOSError osLastErrorCompat()
 
 proc do_stat_impl(result: var Stat; function_name: string, path: string|int, dir_fd: int, follow_symlinks: bool) =
   when HAVE_FSTATAT:

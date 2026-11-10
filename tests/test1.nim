@@ -7,6 +7,10 @@ import std/os
 
 import pyosstat
 import pkg/pystat
+suite "os.stat":
+  test "exceptions":
+    expect OSError:
+      let _ = stat "<<<not exists>>/!>"
 suite "os.stat_result":
   test ".st_mode":
     let st = stat currentSourcePath()
