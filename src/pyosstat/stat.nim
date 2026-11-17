@@ -310,6 +310,7 @@ when DWin:
       st_ino: uint64
       st_ino_high: uint64
 
+  const ULONG_IO_REPARSE_TAG_SYMLINK = ULONG mywinlean.IO_REPARSE_TAG_SYMLINK
   proc Py_attribute_data_to_stat(info: var BY_HANDLE_FILE_INFORMATION, reparse_tag: ULONG,
                   basic_info: ptr FILE_BASIC_INFO, id_info: ptr FILE_ID_INFO,
                   result: var Stat) =
@@ -342,7 +343,7 @@ when DWin:
     if result.st_ino == 0 and result.st_ino_high == 0:
       result.st_ino = (uint64(info.nFileIndexHigh) shl 32) + uint64(info.nFileIndexLow)
 
-    if (info.dwFileAttributes and DWORD FILE_ATTRIBUTE_REPARSE_POINT) != 0 and (reparse_tag == ULONG IO_REPARSE_TAG_SYMLINK):
+    if (info.dwFileAttributes and DWORD FILE_ATTRIBUTE_REPARSE_POINT) != 0 and (reparse_tag == ULONG_IO_REPARSE_TAG_SYMLINK):
       result.st_mode = (result.st_mode and not Mode S_IFMT_val) or S_IFLNK.Mode
 
     result.st_file_attributes = info.dwFileAttributes
@@ -366,7 +367,7 @@ when DWin:
 
     result.st_reparse_tag = info.ReparseTag
     if (info.FileAttributes and DWORD FILE_ATTRIBUTE_REPARSE_POINT) != 0 and
-        info.ReparseTag == ULONG IO_REPARSE_TAG_SYMLINK:
+        info.ReparseTag == ULONG_IO_REPARSE_TAG_SYMLINK:
       result.st_mode = (result.st_mode and not Mode S_IFMT_val) or S_IFLNK.Mode
 
     result.st_file_attributes = info.FileAttributes
